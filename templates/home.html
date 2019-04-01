@@ -3,9 +3,12 @@
 </head>
 <body>
 <form action="/post" method="POST">
-	<h1>Welcome {{username}}</h1> 
-	<input type="text" name = "blog" placeholder="post" required/> </br>
-	<input type="submit" value = Post />
+	<h1>Welcome {{username}}</h1>
+	<input type="text" name = "filepath" placeholder="link" required/> </br>
+		<input type="text" name = "caption" placeholder="caption" required/> </br>
+		Visible to all?
+		<input type="checkbox" name ="visible" value ="true" checked> <br/>
+		<input type="submit" value = Post />
 </form>
 
 <style type="text/css">
@@ -17,9 +20,6 @@
 Here are your posts:
 
 <table>
-	<th>Time</th>
-	<th>Post</th>
-
 {% for line in posts %}
 	<tr>
 		<td>{{line.ts}}</td>

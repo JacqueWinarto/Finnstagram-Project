@@ -81,6 +81,7 @@ def registerAuth():
         ins = 'INSERT INTO User VALUES(%s, %s)'
         ins2 = 'INSERT INTO Person VALUES(%s, %s)'
         cursor.execute(ins, (username, password))
+        cursor.execute(ins2, (username, password))
         conn.commit()
         cursor.close()
         return render_template('index.html')

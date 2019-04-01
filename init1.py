@@ -79,7 +79,7 @@ def registerAuth():
         return render_template('register.html', error = error)
     else:
         ins = 'INSERT INTO User VALUES(%s, %s)'
-        ins2 = 'INSERT INTO Person VALUES(%s, %s)'
+        ins2 = 'INSERT INTO Person VALUES(%s, %s, NULL, NULL, NULL, NULL, NULL)'
         cursor.execute(ins, (username, password))
         cursor.execute(ins2, (username, password))
         conn.commit()
@@ -91,20 +91,29 @@ def registerAuth():
 def home():
     user = session['username']
     cursor = conn.cursor();
-    query = 'SELECT photoID FROM Photo'
+    query = "SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE username = '" + user + "' UNION (SELECT photoID, photoOwner, Timestamp, filePath, caption FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow= 1) UNION (SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo WHERE photoOwner = '" + user + "');"
     cursor.execute(query)
     data = cursor.fetchall()
+    query = "SELECT q.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE Belong.username = '" + user + "') as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 UNION (SELECT t.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1) UNION (SELECT v.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo WHERE photoOwner = '" + user + "') as v JOIN Tag JOIN Person ON v.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1);"
+    cursor.execute(query)
+    tags = cursor.fetchall()
+    print(tags)
     cursor.close()
-    return render_template('home.html', username=user, posts=data)
+    return render_template('home.html', username=user, posts=data, tagged=tags)
 
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
     username = session['username']
     cursor = conn.cursor();
-    blog = request.form['blog']
-    query = 'INSERT INTO Photo (photoID, photoOwner) VALUES(%s, %s)'
-    cursor.execute(query, (blog, username))
+    filepath = request.form['filepath']
+    caption = request.form['caption']
+    if request.form.get('visible'):
+        visible = '1'
+    else:
+        visible = '0'
+    query = 'INSERT INTO Photo (photoOwner, filePath, caption, allFollowers) VALUES(%s, %s, %s, %s )'
+    cursor.execute(query, (username, filepath, caption, visible))
     conn.commit()
     cursor.close()
     return redirect(url_for('home'))

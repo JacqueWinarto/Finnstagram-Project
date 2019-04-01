@@ -19,14 +19,28 @@
 
 Here are your posts:
 
-<table>
 {% for line in posts %}
+<table>
 	<tr>
-		<td>{{line.ts}}</td>
-		<td>{{line.blog_post}}</td>
+		<td>{{line.photoID}}</td>
+		<td> at {{line.Timestamp}}</td>
 	</tr>
-{% endfor %}
+	<tr>
+		<td><img src="{{line.filePath }}" /></td>
+	</tr>
+	<tr>
+		<td>{{line.photoOwner}}: {{line.caption}}</td>
+	</tr>
+	<tr>
+		<td>Tagged: {% for tag in tagged %}
+			{%- if tag.photoID == line.photoID -%}
+			{{tag.fname}} {{tag.lname}},
+			{% endif %}
+			{% endfor %}
+		 </td>
+	</tr>
 </table>
+{% endfor %}
 
 <a href="/select_blogger">Select a blogger</a>
 <br>

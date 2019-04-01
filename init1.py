@@ -40,7 +40,7 @@ def loginAuth():
     #cursor used to send queries
     cursor = conn.cursor()
     #executes query
-    query = 'SELECT * FROM User WHERE username = %s and password = %s'
+    query = 'SELECT * FROM Person WHERE username = %s and password = %s'
     cursor.execute(query, (username, password))
     #stores the results in a variable
     data = cursor.fetchone()
@@ -67,7 +67,7 @@ def registerAuth():
     #cursor used to send queries
     cursor = conn.cursor()
     #executes query
-    query = 'SELECT * FROM User WHERE username = %s'
+    query = 'SELECT * FROM Person WHERE username = %s'
     cursor.execute(query, (username))
     #stores the results in a variable
     data = cursor.fetchone()
@@ -78,10 +78,8 @@ def registerAuth():
         error = "This user already exists"
         return render_template('register.html', error = error)
     else:
-        ins = 'INSERT INTO User VALUES(%s, %s)'
-        ins2 = 'INSERT INTO Person VALUES(%s, %s, NULL, NULL, NULL, NULL, NULL)'
+        ins = 'INSERT INTO Person VALUES(%s, %s, NULL, NULL, NULL, NULL, NULL)'
         cursor.execute(ins, (username, password))
-        cursor.execute(ins2, (username, password))
         conn.commit()
         cursor.close()
         return render_template('index.html')
@@ -91,13 +89,12 @@ def registerAuth():
 def home():
     user = session['username']
     cursor = conn.cursor();
-    query = "SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE username = '" + user + "' UNION (SELECT photoID, photoOwner, Timestamp, filePath, caption FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow= 1) UNION (SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo WHERE photoOwner = '" + user + "');"
+    query = "SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE username = '" + user + "' UNION (SELECT photoID, photoOwner, Timestamp, filePath, caption FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow= 1) UNION (SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo WHERE photoOwner = '" + user + "') ORDER BY Timestamp DESC;"
     cursor.execute(query)
     data = cursor.fetchall()
     query = "SELECT q.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE Belong.username = '" + user + "') as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 UNION (SELECT t.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1) UNION (SELECT v.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo WHERE photoOwner = '" + user + "') as v JOIN Tag JOIN Person ON v.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1);"
     cursor.execute(query)
     tags = cursor.fetchall()
-    print(tags)
     cursor.close()
     return render_template('home.html', username=user, posts=data, tagged=tags)
 
@@ -135,7 +132,7 @@ def select_blogger():
 def show_posts():
     poster = request.args['poster']
     cursor = conn.cursor();
-    query = 'SELECT timestamp, photoID FROM Photo ORDER BY timestamp DESC'
+    query = 'SELECT Timestamp, photoID FROM Photo ORDER BY Timestamp DESC'
     cursor.execute(query, poster)
     data = cursor.fetchall()
     cursor.close()

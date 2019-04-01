@@ -1,5 +1,12 @@
 <html>
 <head>
+	<title>Finnstagram</title>
+
+	<style type="text/css">
+		table, th, td{
+			border: 1px solid black;
+		}
+	</style>
 </head>
 <body>
 <form action="/post" method="POST">
@@ -11,22 +18,15 @@
 		<input type="submit" value = Post />
 </form>
 
-<style type="text/css">
-	table, th, td{
-		border: 1px solid black;
-	}
-</style>
-
 Here are your posts:
 
 {% for line in posts %}
 <table>
 	<tr>
-		<td>{{line.photoID}}</td>
-		<td> at {{line.Timestamp}}</td>
+		<td>{{line.photoID}} at {{line.Timestamp}}</td>
 	</tr>
 	<tr>
-		<td><img src="{{line.filePath }}" /></td>
+		<td><img src="{{line.filePath }}" width ="400px" height="400px" /></td>
 	</tr>
 	<tr>
 		<td>{{line.photoOwner}}: {{line.caption}}</td>
@@ -40,6 +40,7 @@ Here are your posts:
 		 </td>
 	</tr>
 </table>
+<br/>
 {% endfor %}
 
 <a href="/select_blogger">Select a blogger</a>

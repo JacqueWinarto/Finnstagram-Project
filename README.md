@@ -1,5 +1,9 @@
 # Finnstagram-Project
 
+static/style - all css files
+
+  - main.css --> styling for all pages
+  - login.css 
 templates - all html files for site
 
   - home.html
@@ -8,6 +12,8 @@ templates - all html files for site
   - register.html
   - select_blogger.html
   - show_posts.html
+  
+ 
   
  createQueries.sql - script for creating tables
  

@@ -1,6 +1,25 @@
 <html>
 <head>
+	<!-- META -- >
 	<title>Finnstagram</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<link rel="shortcut icon" href=""/>
+
+	<!-- SCRIPTS -->
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+
+	<!-- FONTS -->
+	<link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Hind:400,700' rel='stylesheet' type='text/css'>
+
+	<!-- STYLE -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="stylesheet" href="{{ url_for('static',filename='style/main.css') }}">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
 
 	<style type="text/css">
 		table, th, td{
@@ -9,44 +28,63 @@
 	</style>
 </head>
 <body>
-<form action="/post" method="POST">
-	<h1>Welcome {{username}}</h1>
-	<input type="text" name = "filepath" placeholder="link" required/> </br>
-		<input type="text" name = "caption" placeholder="caption" required/> </br>
-		Visible to all?
-		<input type="checkbox" name ="visible" value ="true" checked> <br/>
-		<input type="submit" value = Post />
-</form>
+	<nav class="navbar navbar-expand-sm bg-light" id="header">
 
-Here are your posts:
+	  <!-- Links -->
+	  <ul class="navbar-nav">
+			<a class="navbar-brand" href="#">Finnstagram</a>
+	    <li class="nav-item">
+				<a href="/select_blogger" class="nav-link">Select a blogger</a>
+	    </li>
+			<li class="nav-item">
+	      <a class="nav-link" href="#">Manage Follows</a>
+	    </li>
+	    <li class="nav-item">
+	      	<a class="nav-link" href="/logout">Logout</a>
+	    </li>
+	  </ul>
 
-{% for line in posts %}
-<table>
-	<tr>
-		<td>{{line.photoID}} at {{line.Timestamp}}</td>
-	</tr>
-	<tr>
-		<td><img src="{{line.filePath }}" width ="400px" height="400px" /></td>
-	</tr>
-	<tr>
-		<td>{{line.photoOwner}}: {{line.caption}}</td>
-	</tr>
-	<tr>
-		<td>Tagged: {% for tag in tagged %}
-			{%- if tag.photoID == line.photoID -%}
-			{{tag.fname}} {{tag.lname}},
-			{% endif %}
-			{% endfor %}
-		 </td>
-	</tr>
-</table>
-<br/>
-{% endfor %}
+	</nav>
 
-<a href="/select_blogger">Select a blogger</a>
-<br>
-<a href="/logout">Logout</a>
+<div class="container">
+	<div class="row">
+	<span class="col-sm-4">
+		<h4>Welcome {{username}}</h4>
+		<form action="/post" method="POST">
+			<input type="text" name = "filepath" placeholder="link" required/> </br>
+				<input type="text" name = "caption" placeholder="caption" required/> </br>
+				Visible to all?
+				<input type="checkbox" name ="visible" value ="true" checked> <br/>
+				<input type="submit" value = Post />
+		</form>
+	</span>
+	<span class="col-sm-8">
+		{% for line in posts %}
+		<table>
+			<tr>
+				<td>{{line.photoID}} at {{line.Timestamp}}</td>
+			</tr>
+			<tr>
+				<td><img src="{{line.filePath }}" width ="400px" height="400px" /></td>
+			</tr>
+			<tr>
+				<td>{{line.photoOwner}}: {{line.caption}}</td>
+			</tr>
+			<tr>
+				<td>Tagged: {% for tag in tagged %}
+					{%- if tag.photoID == line.photoID -%}
+					{{tag.fname}} {{tag.lname}},
+					{% endif %}
+					{% endfor %}
+				 </td>
+			</tr>
+		</table>
+		<br/>
+		{% endfor %}
+</span>
+</div>
 
+</div>
 </body>
 
 

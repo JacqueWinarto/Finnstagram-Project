@@ -1,0 +1,68 @@
+#loginForm {
+  width:300px;
+  margin: 0 auto;
+}
+
+#loginForm input{
+  width:100%;
+}
+
+#header{
+  margin-bottom:50px;
+}
+
+#header a{
+  color:#212529;
+}
+
+/*Links*/
+a { color: #A73AFF;}
+
+/*All Titles*/
+h1{
+	text-align:center;
+    font-family:Montserrat,helvetica,sans-serif;
+	line-height:100%;
+    font-weight:700;
+    text-transform:uppercase;
+    line-height:70px;
+
+}
+
+h1::after{
+	content: "";
+    display: block;
+    margin: 15px auto 0;
+    height: 5px;
+    width: 100px;
+    background: #A73AFF;
+    -webkit-border-radius: 2.5px;
+    -webkit-background-clip: padding-box;
+    -moz-border-radius: 2.5px;
+    -moz-background-clip: padding;
+    border-radius: 2.5px;
+    background-clip: padding-box;
+}
+h1::before, h1::after{
+	-webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+h2{
+    font-family:Montserrat,helvetica,sans-serif;
+    font-size:30px;
+	line-height:100%;
+    font-weight:700;
+    text-transform:uppercase;
+    color:#A73AFF;
+}
+
+h3{
+    font-family:Montserrat,helvetica,sans-serif;
+    text-transform:none;
+    font-size:20px;
+    font-weight:400;
+    border-bottom:2px solid #A73AFF;
+
+}

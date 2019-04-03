@@ -4,6 +4,7 @@ static/style - all css files
 
   - main.css --> styling for all pages
   - login.css 
+  
 templates - all html files for site
 
   - home.html

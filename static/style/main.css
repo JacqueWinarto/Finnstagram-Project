@@ -8,6 +8,7 @@ a { color: #5E208F;}
 #header{
   background: #ffffff;
   margin-bottom:50px;
+  border-bottom:1px solid #e6e6e6;
 }
 
 #header a{

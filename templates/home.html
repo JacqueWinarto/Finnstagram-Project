@@ -70,7 +70,15 @@
 			<input type="text" name = "filepath" placeholder="link" required/> </br>
 				<textarea name = "caption" placeholder="caption" required/></textarea></br>
 				Visible to all?
-				<input type="checkbox" name ="visible" value ="true" checked> <br/>
+				<input type="radio" name ="visible" value ="true" checked> <br/>
+				Visible only to a CloseFriendsGroup?
+				<input type="radio" name="visible" value="false" checked> <br/>
+				<!-- get the options from CloseFriendsGroup -->
+				<select name = "closeFriends">
+				{% for group in groups %}
+				<option value="{{group.groupName}}">{{group.goupName}}</option>
+				{% endfor %}
+				</select>
 				<input type="submit" value = Post />
 		</form>
 	</span>
@@ -79,6 +87,15 @@
 
 </div>
 </body>
-
+<!-- <form action="/post" method="POST">
+	<h1>Welcome {{username}}</h1>
+	<input type="text" name = "filepath" placeholder="link" required/> </br>
+		<input type="text" name = "caption" placeholder="caption" required/> </br>
+		Visible to all?
+		<input type="radio" name ="visible" value ="all" checked> <br/>
+		Visible only to CloseFriendsGroup?
+		<input type="radio" name="visible" value="closeFriends" checked> <br/>
+		<input type="submit" value = Post />
+</form> -->
 
 </html>

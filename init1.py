@@ -9,9 +9,9 @@ app = Flask(__name__)
 
 #Configure MySQL
 conn = pymysql.connect(host='localhost',
-                       port = 3306,
+                       port = 8889,
                        user='root',
-                       password='',
+                       password='root',
                        db='finnstagram',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -96,9 +96,18 @@ def home():
     query = "SELECT q.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE Belong.username = '" + user + "') as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 UNION (SELECT t.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1) UNION (SELECT v.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo WHERE photoOwner = '" + user + "') as v JOIN Tag JOIN Person ON v.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1);"
     cursor.execute(query)
     tags = cursor.fetchall()
+    # query that puts the Photos that are Share(d) to a CloseFriendGroup that user belongs to
     cursor.close()
     return render_template('home.html', username=user, posts=data, tagged=tags)
 
+@app.route('/post')
+def dropdown(): # displays a dropdown menu with all CloseFriendGroups Person belongs to
+    user = session['username']
+    cursor = conn.cursor();
+    query = "SELECT groupName FROM Belong WHERE username = '" + user + " OR groupOwner = '" + user + ";"
+    cursor.execute(query)
+    return render_template('home.html', username = user, groups = cursor.fetchall())
+# have an option for each CloseFriendGroup Person belongs to
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
@@ -110,7 +119,9 @@ def post():
         visible = '1'
     else:
         visible = '0'
+        dropdown();
     query = 'INSERT INTO Photo (photoOwner, filePath, caption, allFollowers) VALUES(%s, %s, %s, %s )'
+# query that inserts photo into Share table
     cursor.execute(query, (username, filepath, caption, visible))
     conn.commit()
     cursor.close()

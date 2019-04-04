@@ -15,21 +15,15 @@
 	<link href='https://fonts.googleapis.com/css?family=Hind:400,700' rel='stylesheet' type='text/css'>
 
 	<!-- STYLE -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 	<link rel="stylesheet" href="{{ url_for('static',filename='style/main.css') }}">
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-
-	<style type="text/css">
-		table, th, td{
-			border: 1px solid black;
-		}
 	</style>
 </head>
 <body>
-	<nav class="navbar navbar-expand-sm bg-light" id="header">
-
+	<nav class="navbar navbar-expand-sm" id="header">
 	  <!-- Links -->
 	  <ul class="navbar-nav">
 			<a class="navbar-brand" href="#">Finnstagram</a>
@@ -43,43 +37,38 @@
 	      	<a class="nav-link" href="/logout">Logout</a>
 	    </li>
 	  </ul>
-
 	</nav>
 
 <div class="container">
 	<div class="row">
-	<span class="col-sm-4">
-		<h4>Welcome {{username}}</h4>
-		<form action="/post" method="POST">
+	<span class="col-md-4" id="sidebar">
+		<form action="/post" method="POST" id="postForm">
+			<h4>Welcome {{username}}</h4><br/>
 			<input type="text" name = "filepath" placeholder="link" required/> </br>
-				<input type="text" name = "caption" placeholder="caption" required/> </br>
+				<textarea name = "caption" placeholder="caption" required/></textarea></br>
 				Visible to all?
 				<input type="checkbox" name ="visible" value ="true" checked> <br/>
 				<input type="submit" value = Post />
 		</form>
 	</span>
-	<span class="col-sm-8">
+	<span class="col-md-8" id="posts">
 		{% for line in posts %}
-		<table>
-			<tr>
-				<td>{{line.photoID}} at {{line.Timestamp}}</td>
-			</tr>
-			<tr>
-				<td><img src="{{line.filePath }}" width ="400px" height="400px" /></td>
-			</tr>
-			<tr>
-				<td>{{line.photoOwner}}: {{line.caption}}</td>
-			</tr>
-			<tr>
-				<td>Tagged: {% for tag in tagged %}
-					{%- if tag.photoID == line.photoID -%}
-					{{tag.fname}} {{tag.lname}},
-					{% endif %}
-					{% endfor %}
-				 </td>
-			</tr>
-		</table>
-		<br/>
+		<span class="post">
+			<div class="post-info">
+				<b style="float:left">{{line.photoOwner}}</b> {{line.photoID}} at {{line.Timestamp}}
+		  </div>
+			<img src="{{line.filePath }}" width ="100%"/>
+			<div class="caption">
+				<b>{{line.photoOwner}}</b>  {{line.caption}}
+			</div>
+			<div class="tags">
+				<i class="fas fa-tags"></i>&nbsp {% for tag in tagged %}
+				{%- if tag.photoID == line.photoID -%}
+				{{tag.fname}} {{tag.lname}},
+				{% endif %}
+				{% endfor %}
+			</div>
+		</span>
 		{% endfor %}
 </span>
 </div>

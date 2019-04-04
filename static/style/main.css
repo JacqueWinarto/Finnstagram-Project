@@ -1,13 +1,12 @@
-#loginForm {
-  width:300px;
-  margin: 0 auto;
+body{
+  background-color: #fafafa;
+  color:#212529;
 }
 
-#loginForm input{
-  width:100%;
-}
+a { color: #5E208F;}
 
 #header{
+  background: #ffffff;
   margin-bottom:50px;
 }
 
@@ -15,54 +14,74 @@
   color:#212529;
 }
 
-/*Links*/
-a { color: #A73AFF;}
+.navbar-brand{ font-weight: bold;}
 
-/*All Titles*/
-h1{
-	text-align:center;
-    font-family:Montserrat,helvetica,sans-serif;
-	line-height:100%;
-    font-weight:700;
-    text-transform:uppercase;
-    line-height:70px;
-
+#loginForm {
+  background-color: white;
+  border:1px solid #e6e6e6;
+  padding:5%;
+  width:40%;
+  min-width:300px;
+  margin: 0 auto;
 }
 
-h1::after{
-	content: "";
-    display: block;
-    margin: 15px auto 0;
-    height: 5px;
-    width: 100px;
-    background: #A73AFF;
-    -webkit-border-radius: 2.5px;
-    -webkit-background-clip: padding-box;
-    -moz-border-radius: 2.5px;
-    -moz-background-clip: padding;
-    border-radius: 2.5px;
-    background-clip: padding-box;
-}
-h1::before, h1::after{
-	-webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+#loginForm input{
+  width:100%;
+  padding:2%;
+  margin:2% 0;
+  border:1px solid #e6e6e6;
 }
 
-h2{
-    font-family:Montserrat,helvetica,sans-serif;
-    font-size:30px;
-	line-height:100%;
-    font-weight:700;
-    text-transform:uppercase;
-    color:#A73AFF;
+#loginForm input[type=submit]{
+  background-color:#5E208F;
+  border:0px solid white;
+  color:white;
 }
 
-h3{
-    font-family:Montserrat,helvetica,sans-serif;
-    text-transform:none;
-    font-size:20px;
-    font-weight:400;
-    border-bottom:2px solid #A73AFF;
+#loginForm input[type=text], #loginForm input[type=password]{
+  background-color:#e6e6e6;
+}
 
+#postForm{
+  width:100%;
+  padding:8%;
+  margin-bottom:10%;
+  background-color:white;
+  border:1px solid #e6e6e6;
+}
+
+#postForm input[type=text], #postForm input[type=submit], #postForm textarea{
+  width:100%;
+  padding:2%;
+  margin:2% 0;
+  border:1px solid #e6e6e6;
+}
+
+#postForm input[type=submit]{
+  background-color:#5E208F;
+  border:0px solid white;
+  color:white;
+}
+
+#postForm input[type=text], #postForm textarea{
+  background-color:#e6e6e6;
+}
+
+
+.post{
+  display:block;
+  width:100%;
+  max-width:500px;
+  margin:0 auto;
+  margin-bottom:20px;
+  background-color:white;
+  border:1px solid #e6e6e6;
+}
+
+.post .post-info, .post .caption, .post .tags {
+  padding:2%;
+}
+
+.post .post-info {
+  text-align:right;
 }

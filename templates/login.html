@@ -25,25 +25,31 @@
 
 </head>
 <body>
-	<!-- Header -->
-	<div class="jumbotron jumbotron-fluid text-center">
-			<h1> Welcome to Finnstagram!</h1>
-	</div>
+	<nav class="navbar navbar-expand-sm" id="header">
+	  <!-- Links -->
+	  <ul class="navbar-nav">
+			<a class="navbar-brand" href="#">Finnstagram</a>
+	    <li class="nav-item">
+				<a href="/register" class="nav-link">Register</a>
+	    </li>
+	  </ul>
+	</nav>
 
 	<!-- form -->
 	<div class="container">
 		<div id="loginForm">
+			<h1>Login</h1>
 			<form action="/loginAuth" method="POST">
-				<input type="text" name = "username" placeholder="username" required/> </br>
+				<input type="text"  name = "username" placeholder="username" required/> </br>
 				<input type="password" name = "password" placeholder="password" required/></br>
 				<input type="submit" value = Login />
 				{% if error %}
 					<p class="error"><strong>Error:</strong> {{error}}</p>
 				{% endif %}
 			</form>
-		<a href="/">Go back</a>
+			<a href="/">Go back</a>
+		</div>
 	</div>
-</div>
 </body>
 
 

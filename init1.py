@@ -91,28 +91,19 @@ def home():
     user = session['username']
     #selecting posts
     cursor = conn.cursor();
-    query = "SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE username = '" + user + "' UNION (SELECT photoID, photoOwner, Timestamp, filePath, caption FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow= 1) UNION (SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo WHERE photoOwner = '" + user + "') ORDER BY Timestamp DESC;"
+    query = "SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE username = '" + user + "' OR Belong.groupOwner = '" + user + "' UNION (SELECT photoID, photoOwner, Timestamp, filePath, caption FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow= 1) UNION (SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo WHERE photoOwner = '" + user + "') ORDER BY Timestamp DESC;"
     cursor.execute(query)
     data = cursor.fetchall()
     #selecting tags
-    query = "SELECT q.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE Belong.username = '" + user + "') as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 UNION (SELECT t.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1) UNION (SELECT v.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo WHERE photoOwner = '" + user + "') as v JOIN Tag JOIN Person ON v.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1);"
+    query = "SELECT q.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE Belong.username = '" + user + "' OR Belong.groupOwner = '" + user + "') as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 UNION (SELECT t.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1) UNION (SELECT v.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo WHERE photoOwner = '" + user + "') as v JOIN Tag JOIN Person ON v.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1);"
     cursor.execute(query)
     tags = cursor.fetchall()
     # query that puts the Photos that are Share(d) to a CloseFriendGroup that user belongs to
-    query = "SELECT groupName FROM belong WHERE username = '" +user + "'"
+    query = "SELECT groupName FROM belong WHERE username = '" +user + "' OR groupOwner = '" + user + "';"
     cursor.execute(query)
     closegroups = cursor.fetchall()
     cursor.close()
     return render_template('home.html', username=user, posts=data, tagged=tags, groups=closegroups)
-
-@app.route('/post')
-def dropdown(): # displays a dropdown menu with all CloseFriendGroups Person belongs to
-    user = session['username']
-    cursor = conn.cursor();
-    query = "SELECT groupName FROM Belong WHERE username = '" + user + " OR groupOwner = '" + user + ";"
-    cursor.execute(query)
-    return render_template('home.html', username = user, groups = cursor.fetchall())
-# have an option for each CloseFriendGroup Person belongs to
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
@@ -120,14 +111,35 @@ def post():
     cursor = conn.cursor();
     filepath = request.form['filepath']
     caption = request.form['caption']
+    #allFollowers
     if request.form.get('visible'):
         visible = '1'
     else:
         visible = '0'
-        dropdown();
+    #inserting photo into table
     query = 'INSERT INTO Photo (photoOwner, filePath, caption, allFollowers) VALUES(%s, %s, %s, %s )'
-# query that inserts photo into Share table
     cursor.execute(query, (username, filepath, caption, visible))
+    conn.commit()
+    cursor.close()
+    #sharing w showGroups
+    #loop going through all avaliable groups
+    cursor = conn.cursor();
+    i = 1;
+    while request.form.get(str(i)):
+        #getting groupName
+        group = request.form.get(str(i))
+        #getting groupOwner
+        query = "SELECT groupOwner from belong where groupName = '" + group + "' and username = '" + username + "' or groupOwner = '" + username + "';"
+        cursor.execute(query)
+        owner = cursor.fetchall()
+        #getting photoID
+        query = "SELECT photoID FROM Photo where photoOwner = '" + username + "' ORDER BY photoID DESC LIMIT 1;"
+        cursor.execute(query)
+        id = cursor.fetchall()
+        #inserting into Share
+        query = "INSERT INTO share VALUES(%s,%s,%s)"
+        cursor.execute(query, (str(group),str(owner[0]['groupOwner']), id[0]['photoID']))
+        i += 1
     conn.commit()
     cursor.close()
     return redirect(url_for('home'))

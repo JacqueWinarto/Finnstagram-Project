@@ -70,15 +70,15 @@
 			<input type="text" name = "filepath" placeholder="link" required/> </br>
 				<textarea name = "caption" placeholder="caption" required/></textarea></br>
 				Visible to all?
-				<input type="radio" name ="visible" value ="true" checked> <br/>
-				Visible only to a CloseFriendsGroup?
-				<input type="radio" name="visible" value="false" checked> <br/>
+				<input type="checkbox" id="check" onClick="showGroups()" name ="visible" value ="true"> <br/>
 				<!-- get the options from CloseFriendsGroup -->
-				<select name = "closeFriends">
-				{% for group in groups %}
-				<option value="{{group.groupName}}">{{group.groupName}}</option>
-				{% endfor %}
-				</select>
+				<div id="groups">
+					Share with groups? <br/>
+					{% for group in groups %}
+					<!-- loop index used in loop, value is groups name -->
+					<input type="checkbox" name="{{loop.index}}" value={{group.groupName}}>{{group.groupName}}<br/>
+					{% endfor %}
+				</div>
 				<input type="submit" value = Post />
 		</form>
 	</span>
@@ -87,15 +87,22 @@
 
 </div>
 </body>
-<!-- <form action="/post" method="POST">
-	<h1>Welcome {{username}}</h1>
-	<input type="text" name = "filepath" placeholder="link" required/> </br>
-		<input type="text" name = "caption" placeholder="caption" required/> </br>
-		Visible to all?
-		<input type="radio" name ="visible" value ="all" checked> <br/>
-		Visible only to CloseFriendsGroup?
-		<input type="radio" name="visible" value="closeFriends" checked> <br/>
-		<input type="submit" value = Post />
-</form> -->
+
+<!-- Function for showing the groups when visible to all isn't clicked-->
+<script>
+function showGroups() {
+  // Get the checkbox
+  var checkBox = document.getElementById("check");
+  // Get the output text
+  var text = document.getElementById("groups");
+
+  // If the checkbox is not checked, display the group options
+  if (checkBox.checked == false){
+    text.style.display = "block";
+  } else {
+    text.style.display = "none";
+  }
+}
+</script>
 
 </html>

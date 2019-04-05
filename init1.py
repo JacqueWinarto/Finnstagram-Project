@@ -8,10 +8,10 @@ import os
 app = Flask(__name__)
 
 #Configure MySQL
-conn = pymysql.connect(host='localhost',
-                       port = 8889,
+conn = pymysql.connect(host='127.0.0.1',
+                       port = 3306,
                        user='root',
-                       password='root',
+                       password='',
                        db='finnstagram',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -89,16 +89,21 @@ def registerAuth():
 @app.route('/home')
 def home():
     user = session['username']
+    #selecting posts
     cursor = conn.cursor();
     query = "SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE username = '" + user + "' UNION (SELECT photoID, photoOwner, Timestamp, filePath, caption FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow= 1) UNION (SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo WHERE photoOwner = '" + user + "') ORDER BY Timestamp DESC;"
     cursor.execute(query)
     data = cursor.fetchall()
+    #selecting tags
     query = "SELECT q.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE Belong.username = '" + user + "') as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 UNION (SELECT t.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1) UNION (SELECT v.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo WHERE photoOwner = '" + user + "') as v JOIN Tag JOIN Person ON v.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1);"
     cursor.execute(query)
     tags = cursor.fetchall()
     # query that puts the Photos that are Share(d) to a CloseFriendGroup that user belongs to
+    query = "SELECT groupName FROM belong WHERE username = '" +user + "'"
+    cursor.execute(query)
+    closegroups = cursor.fetchall()
     cursor.close()
-    return render_template('home.html', username=user, posts=data, tagged=tags)
+    return render_template('home.html', username=user, posts=data, tagged=tags, groups=closegroups)
 
 @app.route('/post')
 def dropdown(): # displays a dropdown menu with all CloseFriendGroups Person belongs to

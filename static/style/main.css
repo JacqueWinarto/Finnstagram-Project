@@ -1,0 +1,88 @@
+body{
+  background-color: #fafafa;
+  color:#212529;
+}
+
+a { color: #5E208F;}
+
+#header{
+  background: #ffffff;
+  margin-bottom:50px;
+  border-bottom:1px solid #e6e6e6;
+}
+
+#header a{
+  color:#212529;
+}
+
+.navbar-brand{ font-weight: bold;}
+
+#loginForm {
+  background-color: white;
+  border:1px solid #e6e6e6;
+  padding:5%;
+  width:40%;
+  min-width:300px;
+  margin: 0 auto;
+}
+
+#loginForm input{
+  width:100%;
+  padding:2%;
+  margin:2% 0;
+  border:1px solid #e6e6e6;
+}
+
+#loginForm input[type=submit]{
+  background-color:#5E208F;
+  border:0px solid white;
+  color:white;
+}
+
+#loginForm input[type=text], #loginForm input[type=password]{
+  background-color:#e6e6e6;
+}
+
+#postForm{
+  width:100%;
+  padding:8%;
+  margin-bottom:10%;
+  background-color:white;
+  border:1px solid #e6e6e6;
+}
+
+#postForm input[type=text], #postForm input[type=submit], #postForm textarea{
+  width:100%;
+  padding:2%;
+  margin:2% 0;
+  border:1px solid #e6e6e6;
+}
+
+#postForm input[type=submit]{
+  background-color:#5E208F;
+  border:0px solid white;
+  color:white;
+}
+
+#postForm input[type=text], #postForm textarea{
+  background-color:#e6e6e6;
+}
+
+
+.post{
+  display:block;
+  width:100%;
+  max-width:500px;
+  margin:0 auto;
+  margin-bottom:20px;
+  background-color:white;
+  border:1px solid #e6e6e6;
+}
+
+.post .post-info, .post .caption, .post .tags {
+  padding:2%;
+}
+
+.post .post-info {
+  text-align:right;
+}

@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 #Import Flask Library
-from flask import Flask, render_template, request, session, url_for, redirect
-import pymysql.cursors
+from flask import Flask, render_template, request, session, redirect, url_for, send_file
 import os
+import uuid
+import hashlib
+import pymysql.cursors
+from functools import wraps
+import time
+
 
 #Initialize the app from Flask
 app = Flask(__name__)
@@ -37,12 +42,12 @@ def loginAuth():
     #grabs information from the forms
     username = request.form['username']
     password = request.form['password']
-
+    hashedPassword = hashlib.sha256(password.encode("utf-8")).hexdigest()
     #cursor used to send queries
     cursor = conn.cursor()
     #executes query
     query = 'SELECT * FROM Person WHERE username = %s and password = %s'
-    cursor.execute(query, (username, password))
+    cursor.execute(query, (username, hashedPassword))
     #stores the results in a variable
     data = cursor.fetchone()
     #use fetchall() if you are expecting more than 1 data row
@@ -52,7 +57,7 @@ def loginAuth():
         #creates a session for the the user
         #session is a built in
         session['username'] = username
-        return redirect(url_for('home'))
+        return redirect(url_for("home"))
     else:
         #returns an error message to the html page
         error = 'Invalid login or username'
@@ -64,7 +69,6 @@ def registerAuth():
     #grabs information from the forms
     username = request.form['username']
     password = request.form['password']
-
     #cursor used to send queries
     cursor = conn.cursor()
     #executes query
@@ -79,11 +83,12 @@ def registerAuth():
         error = "This user already exists"
         return render_template('register.html', error = error)
     else:
+        hashedPassword = hashlib.sha256(password.encode("utf-8")).hexdigest()
         ins = 'INSERT INTO Person VALUES(%s, %s, NULL, NULL, NULL, NULL, NULL)'
-        cursor.execute(ins, (username, password))
+        cursor.execute(ins, (username, hashedPassword))
         conn.commit()
         cursor.close()
-        return render_template('index.html')
+        return render_template('login.html')
 
 
 @app.route('/home')

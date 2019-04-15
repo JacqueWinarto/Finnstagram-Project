@@ -24,7 +24,11 @@ conn = pymysql.connect(host='127.0.0.1',
 #Define a route to hello function
 @app.route('/')
 def hello():
-    return render_template('index.html')
+    try:
+        if session['username']:
+            return redirect(url_for("home"))
+    except:
+        return redirect(url_for("login"))
 
 #Define route for login
 @app.route('/login')
@@ -172,10 +176,24 @@ def show_posts():
     cursor.close()
     return render_template('show_posts.html', poster_name=poster, posts=data)
 
+#Define route for manage_follows page
+@app.route('/follows')
+def follows():
+    user = session['username']
+    cursor = conn.cursor();
+    query = "SELECT followerUsername FROM Follow WHERE followeeUsername = %s AND acceptedfollow = 0"
+    cursor.execute(query,(user))
+    pending_requests = cursor.fetchall()
+    print(pending_requests)
+    cursor.close()
+    return render_template('follows.html', requests=pending_requests)
+
 @app.route('/logout')
 def logout():
     session.pop('username')
     return redirect('/')
+
+
 
 # deleting cache so the styles update
 @app.context_processor

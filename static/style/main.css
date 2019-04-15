@@ -5,6 +5,7 @@ body{
 
 a { color: #5E208F;}
 
+/* Header/Navigation Bar*/
 #header{
   background: #ffffff;
   margin-bottom:50px;
@@ -17,6 +18,7 @@ a { color: #5E208F;}
 
 .navbar-brand{ font-weight: bold;}
 
+/*Styling for specific forms*/
 #loginForm {
   background-color: white;
   border:1px solid #e6e6e6;
@@ -24,23 +26,6 @@ a { color: #5E208F;}
   width:40%;
   min-width:300px;
   margin: 0 auto;
-}
-
-#loginForm input{
-  width:100%;
-  padding:2%;
-  margin:2% 0;
-  border:1px solid #e6e6e6;
-}
-
-#loginForm input[type=submit]{
-  background-color:#5E208F;
-  border:0px solid white;
-  color:white;
-}
-
-#loginForm input[type=text], #loginForm input[type=password]{
-  background-color:#e6e6e6;
 }
 
 #postForm{
@@ -51,24 +36,26 @@ a { color: #5E208F;}
   border:1px solid #e6e6e6;
 }
 
-#postForm input[type=text], #postForm input[type=submit], #postForm textarea{
+/* Styling for all forms */
+input[type=submit]{
+  background-color:#5E208F;
+  border:0px solid white;
+  color:white;
+}
+
+input[type=text], input[type=password], input[type=submit], textarea{
   width:100%;
   padding:2%;
   margin:2% 0;
   border:1px solid #e6e6e6;
 }
 
-#postForm input[type=submit]{
-  background-color:#5E208F;
-  border:0px solid white;
-  color:white;
-}
 
-#postForm input[type=text], #postForm textarea{
+input[type=text], textarea, input[type=password]{
   background-color:#e6e6e6;
 }
 
-
+/* Styling of posts */
 .post{
   display:block;
   width:100%;
@@ -85,4 +72,21 @@ a { color: #5E208F;}
 
 .post .post-info {
   text-align:right;
+}
+
+/* Positioning of search icon on follows page */
+.has-search .form-control {
+  padding-left: 2.375rem;
+}
+
+.has-search .form-control-feedback {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  width: 2.375rem;
+  height: 2.375rem;
+  line-height: 2.375rem;
+  text-align: center;
+  pointer-events: none;
+  color: #aaa;
 }

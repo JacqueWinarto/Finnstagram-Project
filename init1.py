@@ -8,7 +8,6 @@ import pymysql.cursors
 from functools import wraps
 import time
 
-
 #Initialize the app from Flask
 app = Flask(__name__)
 
@@ -34,11 +33,6 @@ def hello():
 @app.route('/login')
 def login():
     return render_template('login.html')
-
-#Define route for register
-@app.route('/register')
-def register():
-    return render_template('register.html')
 
 #Authenticates the login
 @app.route('/loginAuth', methods=['GET', 'POST'])
@@ -66,6 +60,11 @@ def loginAuth():
         #returns an error message to the html page
         error = 'Invalid login or username'
         return render_template('login.html', error=error)
+
+#Define route for register
+@app.route('/register')
+def register():
+    return render_template('register.html')
 
 #Authenticates the register
 @app.route('/registerAuth', methods=['GET', 'POST'])
@@ -178,21 +177,69 @@ def show_posts():
 
 #Define route for manage_follows page
 @app.route('/follows')
-def follows():
+def follows(error = None):
     user = session['username']
     cursor = conn.cursor();
     query = "SELECT followerUsername FROM Follow WHERE followeeUsername = %s AND acceptedfollow = 0"
     cursor.execute(query,(user))
     pending_requests = cursor.fetchall()
-    print(pending_requests)
     cursor.close()
-    return render_template('follows.html', requests=pending_requests)
+    return render_template('follows.html', requests=pending_requests, error = error)
 
+#Follow requests
+@app.route('/requestFollow', methods=["GET", "POST"])
+def request_follow():
+    if request.form:
+        user = session['username']
+        followee = request.form['search'] #user they want to follow
+        cursor = conn.cursor()
+        # checking if followee exists
+        query = 'SELECT * from Person WHERE username = %s'
+        cursor.execute(query,(followee))
+        requested_followee = cursor.fetchone()
+        error = None
+        if not requested_followee:
+            error = "User does not exist"
+        elif followee == user: #trying to follow themself
+            error = "Cannot follow yourself"
+        else:
+            #catch integrity error if already following
+            try:
+                query = "Insert into Follow VALUES (%s,%s, 0)"
+                cursor.execute(query,(user,followee))
+                error = False
+            except:
+                error = "Already sent request!"
+        conn.commit()
+        cursor.close()
+    else:
+        error = "Unknown error, please try again"
+    return follows(error) #loads follow page, probably a better way of doing this but idk
+
+#updating follow requests
+@app.route('/updateFollowRequest', methods=["GET","POST"])
+def update_follow_request():
+    if request.form:
+        user = session['username']
+        follower = request.form.get('follower')
+        cursor = conn.cursor()
+        if request.form["choice"] == "True":
+            query = "UPDATE follow SET acceptedfollow = 1 WHERE followerUsername = %s AND followeeUsername = %s"
+        else:
+            query = "DELETE FROM follow WHERE followerUsername = %s AND followeeUsername = %s"
+        cursor.execute(query, (follower,user))
+        conn.commit()
+        cursor.close()
+        error = None
+    else:
+        error = "Unknown error, please try again"
+    return follows(error) #loads follow page, probably a better way of doing this
+
+#logging out
 @app.route('/logout')
 def logout():
     session.pop('username')
     return redirect('/')
-
 
 
 # deleting cache so the styles update

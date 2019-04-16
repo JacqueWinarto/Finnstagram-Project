@@ -175,6 +175,36 @@ def show_posts():
     cursor.close()
     return render_template('show_posts.html', poster_name=poster, posts=data)
 
+#Define route for manage_tags page
+@app.route('/tags')
+def tags():
+    user = session['username']
+    cursor = conn.cursor();
+    query = "SELECT tag.photoID, photoOwner, Timestamp, caption, filePath FROM Tag NATURAL JOIN Photo WHERE username = %s AND acceptedTag = 0"
+    cursor.execute(query,(user))
+    pending_requests = cursor.fetchall()
+    cursor.close()
+    return render_template('tags.html', requests=pending_requests)
+
+#updating Tag requests
+@app.route('/updateTagRequest', methods=["GET","POST"])
+def update_tag_request():
+    if request.form:
+        user = session['username']
+        photoid = request.form.get('id')
+        cursor = conn.cursor()
+        if request.form["choice"] == "True":
+            query = "UPDATE tag SET acceptedTag = 1 WHERE username = %s AND photoID = %s"
+        else:
+            query = "DELETE FROM tag WHERE username = %s AND photoID = %s"
+        cursor.execute(query, (user,photoid))
+        conn.commit()
+        cursor.close()
+        error = None
+    else:
+        error = "Unknown error, please try again"
+    return redirect(url_for("tags")) #loads follow page, probably a better way of doing this
+
 #Define route for manage_follows page
 @app.route('/follows')
 def follows(error = None):

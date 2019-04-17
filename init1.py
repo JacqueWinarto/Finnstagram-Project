@@ -106,7 +106,6 @@ def home():
     query = "SELECT q.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE Belong.username = '" + user + "' OR Belong.groupOwner = '" + user + "') as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 UNION (SELECT t.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1) UNION (SELECT v.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo WHERE photoOwner = '" + user + "') as v JOIN Tag JOIN Person ON v.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1);"
     cursor.execute(query)
     tags = cursor.fetchall()
-    print(tags)
     # query that puts the shows the close friend groups a person belongs to so they can select them while posting
     query = "SELECT groupName FROM belong WHERE username = '" +user + "' OR groupOwner = '" + user + "';"
     cursor.execute(query)

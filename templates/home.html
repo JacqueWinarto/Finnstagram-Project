@@ -45,7 +45,7 @@
 	<!-- PAGE -->
 	<div class="container" style="margin-top:100px;">
 		<div class="row">
-			<span class="col-md-4" id="sidebar">
+			<span class="col-md-3" id="sidebar">
 				<form action="/post" method="POST" id="postForm">
 					<h4>Welcome {{username}}</h4><br/>
 					<input type="text" name = "filepath" placeholder="link" required/> </br>
@@ -63,7 +63,7 @@
 					<input type="submit" value = Post />
 				</form>
 			</span>
-			<span class="col-md-8" id="posts">
+			<span class="col-md-6" id="posts">
 				<!-- START POSTS LOOP -->
 				{% for line in posts %}
 				<!-- DEFINE OUTER LOOP INDEXING -->
@@ -125,6 +125,7 @@
 		<!-- END POSTS LOOP-->
 	</span>
 	<!-- END COLUMN -->
+	<span class="col-md-3"></span>
 </div>
 <!-- END ROW-->
 </div>

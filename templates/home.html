@@ -18,9 +18,8 @@
 	<!-- SCRIPTS -->
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-
-	</style>
 </head>
+
 <body>
 	<!-- NAV BAR -->
 	<nav class="navbar navbar-expand-sm fixed-top" id="header">
@@ -43,50 +42,105 @@
 	</div>
 	</nav>
 	<!-- Nav Bar -->
-
-<div class="container" style="margin-top:100px;">
-	<div class="row">
-		<span class="col-md-4" id="sidebar">
-			<form action="/post" method="POST" id="postForm">
-				<h4>Welcome {{username}}</h4><br/>
-				<input type="text" name = "filepath" placeholder="link" required/> </br>
-					<textarea name = "caption" placeholder="caption" required/></textarea></br>
-					Visible to all?
-					<input type="checkbox" id="check" onClick="showGroups()" name ="visible" value ="true"> <br/>
-					<!-- get the options from CloseFriendsGroup -->
-					<div id="groups">
-						Share with groups? <br/>
-						{% for group in groups %}
-						<!-- loop index used in loop, value is groups name -->
-						<input type="checkbox" name="{{loop.index}}" value={{group.groupName}}>{{group.groupName}}<br/>
-						{% endfor %}
-					</div>
-					<input type="submit" value = Post />
-			</form>
-		</span>
-		<span class="col-md-8" id="posts">
-			{% for line in posts %}
-			<span class="post">
-				<div class="post-info">
-					<b style="float:left">{{line.photoOwner}}</b> {{line.photoID}} at {{line.Timestamp}}
-			  </div>
-				<img src="{{line.filePath }}" width ="100%"/>
-				<div class="caption">
-					<b>{{line.photoOwner}}</b>  {{line.caption}}
-				</div>
-				<div class="tags">
-					<i class="fas fa-tags"></i>&nbsp {% for tag in tagged %}
-					{%- if tag.photoID == line.photoID -%}
-					{{tag.fname}} {{tag.lname}},
-					{% endif %}
-					{% endfor %}
-				</div>
+	<!-- PAGE -->
+	<div class="container" style="margin-top:100px;">
+		<div class="row">
+			<span class="col-md-4" id="sidebar">
+				<form action="/post" method="POST" id="postForm">
+					<h4>Welcome {{username}}</h4><br/>
+					<input type="text" name = "filepath" placeholder="link" required/> </br>
+						<textarea name = "caption" placeholder="caption" required/></textarea></br>
+						Visible to all?
+						<input type="checkbox" id="check" onClick="showGroups()" name ="visible" value ="true"> <br/>
+						<!-- get the options from CloseFriendsGroup -->
+						<div id="groups">
+							Share with groups? <br/>
+							{% for group in groups %}
+							<!-- loop index used in loop, value is groups name -->
+							<input type="checkbox" name="{{loop.index}}" value={{group.groupName}}>{{group.groupName}}<br/>
+							{% endfor %}
+						</div>
+						<input type="submit" value = Post />
+				</form>
 			</span>
-			{% endfor %}
-	</span>
-</div>
+			<span class="col-md-8" id="posts">
+				<!-- START POSTS LOOP -->
+				{% for line in posts %}
+				<!-- DEFINE OUTER LOOP INDEXING -->
+				{% set outer_loop = loop %}
+				<!-- EACH POST HAS AN INDEX ID SO WE CAN SCROLL TO IT-->
+				<span class="post" id = "{{outer_loop.index}}">
+					<!-- TOP INFO -->
+					<div class="post-info">
+						<b style="float:left">{{line.photoOwner}}</b>
+						{{line.photoID}} at {{line.Timestamp}}
+				  </div>
+					<!-- IMAGE -->
+					<img src="{{line.filePath }}" width ="100%"/>
+					<!-- cAPTION-->
+					<div class="caption">
+						<b>{{line.photoOwner}}</b>
+						{{line.caption}}
+					</div>
+					<!-- BOTTOM INFO -->
+					<div class="bottom-info">
+						<!-- VARIABLE USED IF POST ALREADY LIKED -->
+						{% set ns = namespace(found=false) %}
+						<!-- GO THROUGH LIKED QUERY IF IT EXISTS -->
+							<!-- NEEDED FOR IF USER HASN'T LIKED ANYTHING-->
+						{% if likes %}
+							<!-- GO THROUGH LIKED POSTS -->
+							{% for post in likes %}
+								<!-- POST ALRADY LIKED, SHOW UNLIKE FORM -->
+								{% if line.photoID == post.photoID %}
+									{% set ns.found = true %}
+									<form action="/unlike" method="POST" class="like">
+										<button type="submit" name="like_btn" value = "{{line.photoID}},{{outer_loop.index}}"
+											<i class="fas fa-heart clickable"></i>
+										</button>
+									</form>
+								<!-- POST NOT LIKED, SHOW LIKE FORM -->
+								{% elif loop.last and ns.found == false  %}
+									<form action="/like" method="POST" class="like">
+										<button type="submit" name="like_btn" value = "{{line.photoID}},{{outer_loop.index}}"
+											<i class="far fa-heart clickable"></i>
+										</button>
+									</form>
+								{% endif %}
+							{% endfor %}
+						<!-- IF USER HASN'T LIKED ANYTHING EVER-->
+						{% else %}
+							<form action="/like" method="POST" class="like">
+								<button type="submit" name="like_btn" value = "{{line.photoID}},{{outer_loop.index}}"
+									<i class="far fa-heart clickable"></i>
+								</button>
+							</form>
+						{% endif %}
+						<!-- END LIKES STUFF -->
+						<!-- START TAGS STUFF-->
+						<!-- ONLY SHOW TAGS IF THEY EXIST-->
+						{% if tagged %}
+						<span class="tags">
+							<i class="fas fa-tags"></i>&nbsp
+							{% for tag in tagged if tag.photoID == line.photoID %}
 
-</div>
+								{{tag.fname}} {{tag.lname}}
+									<!-- ADD COMMA IF THERE'S ANOTHER TAG AFTER-->
+									{% if loop.nextitem is defined %},{% endif %}
+							{% endfor %}
+						</span>
+						{% endif %}
+					</div>
+					<!-- END BOTTOM INFO -->
+					</span>
+					<!-- END POST -->
+				{% endfor %}
+				<!-- END POSTS LOOP-->
+		</span>
+		<!-- END COLUMN -->
+	</div>
+	<!-- END ROW-->
+	</div>
 </body>
 
 <!-- Function for showing the groups when visible to all isn't clicked-->
@@ -105,5 +159,4 @@ function showGroups() {
   }
 }
 </script>
-
 </html>

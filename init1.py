@@ -106,12 +106,18 @@ def home():
     query = "SELECT q.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE Belong.username = '" + user + "' OR Belong.groupOwner = '" + user + "') as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 UNION (SELECT t.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1) UNION (SELECT v.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo WHERE photoOwner = '" + user + "') as v JOIN Tag JOIN Person ON v.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1);"
     cursor.execute(query)
     tags = cursor.fetchall()
-    # query that puts the Photos that are Share(d) to a CloseFriendGroup that user belongs to
+    print(tags)
+    # query that puts the shows the close friend groups a person belongs to so they can select them while posting
     query = "SELECT groupName FROM belong WHERE username = '" +user + "' OR groupOwner = '" + user + "';"
     cursor.execute(query)
     closegroups = cursor.fetchall()
+    #query that gets all the photos the person has clicked
+    #html will handle whether they can like a photo or loginAuth
+    query = "SELECT photoID from liked WHERE username = %s"
+    cursor.execute(query,(user))
+    liked_posts = cursor.fetchall()
     cursor.close()
-    return render_template('home.html', username=user, posts=data, tagged=tags, groups=closegroups)
+    return render_template('home.html', username=user, posts=data, tagged=tags, groups=closegroups, likes = liked_posts)
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
@@ -151,6 +157,48 @@ def post():
     conn.commit()
     cursor.close()
     return redirect(url_for('home'))
+
+@app.route('/like', methods=["GET", "POST"])
+def like():
+    if request.form:
+        user = session['username']
+        # getting data of the post
+        data= request.form.get('like_btn')
+        #splitting data into respective variables
+        data = data.split(",")
+        photo_id = data[0]
+        post_id = data[1]
+        cursor = conn.cursor()
+        query = "INSERT INTO liked(username,photoID) VALUES(%s,%s)"
+        try:
+            cursor.execute(query, (user,photo_id))
+        except pymysql.err.IntegrityError:
+            print("Already liked!")
+        conn.commit()
+        cursor.close()
+    # redirect to home, uses posts id in html to go directly to the same post
+    return redirect(url_for("home") + "#" + str(post_id))
+
+@app.route('/unlike', methods=["GET", "POST"])
+def unlike():
+    if request.form:
+        user = session['username']
+        # getting data of the post
+        data= request.form.get('like_btn')
+        #splitting data into respective variables
+        data = data.split(",")
+        photo_id = data[0]
+        post_id = data[1]
+        cursor = conn.cursor()
+        query = "DELETE FROM liked WHERE username = %s AND photoID = %s"
+        try:
+            cursor.execute(query, (user,photo_id))
+        except:
+            print("error")
+        conn.commit()
+        cursor.close()
+    # redirect to home, uses posts id in html to go directly to the same post
+    return redirect(url_for("home") + "#" + str(post_id))
 
 @app.route('/select_blogger')
 def select_blogger():

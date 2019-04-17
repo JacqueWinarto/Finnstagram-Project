@@ -67,13 +67,32 @@ input[type=text], textarea, input[type=password]{
   border:1px solid #e6e6e6;
 }
 
-.post .post-info, .post .caption, .post .tags {
-  padding:2%;
-}
-
 .post .post-info {
   text-align:right;
 }
+
+.post .bottom-info{
+  padding:0% 2% 2% 2%;
+}
+
+.post form{display:inline;}
+
+.post .like button{
+  background-color:white;
+  border:none;
+  padding:0;
+}
+
+.post .tags i{
+  margin-left:5px;
+  letter-spacing:1px;
+}
+
+.post .post-info, .post .caption{
+  padding:2%;
+}
+
+
 
 /* Positioning of search icon on follows page */
 .has-search .form-control {

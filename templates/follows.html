@@ -71,11 +71,14 @@
             <!-- using an invisible checkbox so that the query can get the follower's name -->
             <input type="checkbox"  style="display:none" name="follower" value ={{person.followerUsername}} checked/>
             <span style="float:right">
-             <button type="submit" name="choice" value="True" class="btn btn-success btn-sm"><i class="fas fa-thumbs-up"></i></button>
-             <button type="submit" name="choice"  value="False" class="btn btn-danger btn-sm"><i class="fas fa-thumbs-down"></i></button>
+             <button type="submit" name="choice" value="True" class="btn btn-success btn-sm" title="Accept"><i class="fas fa-thumbs-up"></i></button>
+             <button type="submit" name="choice"  value="False" class="btn btn-danger btn-sm" title="Decline"><i class="fas fa-thumbs-down"></i></button>
             </span>
         </form>
       {% endfor %}
+      {% if not requests %}
+      <p> No follow requests</p>
+      {% endif %}
     </span>
   </div>
 </div>

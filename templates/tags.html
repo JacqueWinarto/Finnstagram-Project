@@ -69,6 +69,9 @@
         </form>
         </span>
       {% endfor %}
+      {% if not requests %}
+      <p> No tag requests</p>
+      {% endif %}
     </span>
   </div>
 </div>

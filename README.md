@@ -1,5 +1,19 @@
 # Finnstagram-Project
 
+Project Status
+
+Required Cases (5/6)
+- login/register DONE 
+- view photo & photoinfo DONE
+- post photo DONE
+- manage follows DONE
+- manage tag requests DONE
+- tag a photo
+- add friend DONE
+
+Extra Cases (1/4)
+- like/unlike photos DONE
+
 static/style - all css files
 
   - main.css --> styling for all pages

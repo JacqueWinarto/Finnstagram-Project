@@ -107,7 +107,7 @@ def home():
     cursor.execute(query)
     tags = cursor.fetchall()
     # query that puts the shows the close friend groups a person belongs to so they can select them while posting
-    query = "SELECT groupName FROM belong WHERE username = '" +user + "' OR groupOwner = '" + user + "';"
+    query = "SELECT DISTINCT groupName FROM belong WHERE username = '" +user + "' OR groupOwner = '" + user + "';"
     cursor.execute(query)
     closegroups = cursor.fetchall()
     #query that gets all the photos the person has clicked
@@ -311,6 +311,51 @@ def update_follow_request():
     else:
         error = "Unknown error, please try again"
     return follows(error) #loads follow page, probably a better way of doing this
+
+#Define route for close friends group page
+@app.route('/groups')
+def groups(error = None):
+    user = session['username']
+    cursor = conn.cursor()
+    query = "SELECT DISTINCT groupName,groupOwner FROM BELONG WHERE groupOwner = %s or username = %s"
+    cursor.execute(query, (user,user))
+    close_groups = cursor.fetchall()
+    print(close_groups)
+    conn.commit()
+    cursor.close()
+    return render_template("groups.html", groups = close_groups, username = user, error = error)
+
+@app.route('/addGroupMember', methods=["POST"])
+def add_group_member():
+    if request.form:
+        user = session['username']
+        group_name = request.form.get('group_name')
+        added_user = request.form.get('added_user')
+        cursor = conn.cursor()
+        # Check if added_user exists
+        query = "SELECT username from Person WHERE username = %s"
+        cursor.execute(query,(added_user))
+        #if doesn't exist return
+        if not cursor.fetchone():
+            error = "User does not exist"
+            return groups(error)
+        # Check if user already in groups
+        query = "SELECT username from Belong WHERE username = %s and groupName = %s AND groupOwner = %s"
+        cursor.execute(query,(added_user, group_name, user))
+        #if exist return
+        if cursor.fetchone():
+            error = added_user + " is already in the group!"
+            return groups(error)
+        #else
+        query = "INSERT INTO Belong VALUES (%s,%s,%s)"
+        cursor.execute(query, (group_name, user, added_user))
+        conn.commit()
+        cursor.close()
+        error = False
+    else:
+        error = "Unknown error, please try again"
+    return groups(error) #loads follow page, probably a better way of doing this
+
 
 #logging out
 @app.route('/logout')

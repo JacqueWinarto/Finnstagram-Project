@@ -92,8 +92,6 @@ input[type=text], textarea, input[type=password]{
   padding:2%;
 }
 
-
-
 /* Positioning of search icon on follows page */
 .has-search .form-control {
   padding-left: 2.375rem;
@@ -118,4 +116,34 @@ input[type=text], textarea, input[type=password]{
   background:white;
   border-bottom:1px solid #e6e6e6;
   margin-block-end:0;
+}
+
+.group{
+  width:100%;
+  padding:2%;
+  background:white;
+  border-bottom:1px solid #e6e6e6;
+  margin-block-end:0;
+  display:inline-block;
+}
+
+/* Styling for all forms */
+.add_link{
+  float:right;
+}
+
+.add_button a{color:white;}
+.add_button a:hover{ text-decoration: none;}
+
+#add{
+  margin-top:10px;
+}
+#add input[type=text]{
+  width:auto;
+  padding:0 2%;
+  margin:0px;
+}
+
+#add button[type=submit]{
+  background-color:#5E208F;
 }

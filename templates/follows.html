@@ -59,10 +59,10 @@
           <input type="submit" value = Follow />
         </form>
       </div>
-      {% if error %}
-        <p class="error"><strong>Error:</strong> {{error}}</p>
-        {% elif error == False  %}
+      {% if error == 'False' %}
         <p> Follow request sent <i class="fas fa-check"></i> </p>
+        {% elif error %}
+        <p class="error"><strong>Error:</strong> {{error}}</p>
       {% endif %}
     </span>
     <!-- MANAGE FOLLOW REQUESTS TAB -->

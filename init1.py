@@ -95,15 +95,17 @@ def registerAuth():
 
 
 @app.route('/home')
-def home():
+@app.route('/home/<error>')
+def home(error = None):
     user = session['username']
     #selecting posts
     cursor = conn.cursor();
-    query = "SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE username = '" + user + "' OR Belong.groupOwner = '" + user + "' UNION (SELECT photoID, photoOwner, Timestamp, filePath, caption FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow= 1) UNION (SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo WHERE photoOwner = '" + user + "') ORDER BY Timestamp DESC;"
+    query = "SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo NATURAL JOIN Share NATURAL JOIN CloseFriendGroup NATURAL JOIN Belong WHERE username = '" + user + "' OR Belong.groupOwner = '" + user + "' UNION (SELECT photoID, photoOwner, Timestamp, filePath, caption FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow= 1) UNION (SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo WHERE photoOwner = '" + user + "') ORDER BY Timestamp DESC;"
     cursor.execute(query)
     data = cursor.fetchall()
+    print(data)
     #selecting tags
-    query = "SELECT q.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Share JOIN CloseFriendGroup JOIN Belong WHERE Belong.username = '" + user + "' OR Belong.groupOwner = '" + user + "') as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 UNION (SELECT t.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1) UNION (SELECT v.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo WHERE photoOwner = '" + user + "') as v JOIN Tag JOIN Person ON v.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1);"
+    query = "SELECT q.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo NATURAL JOIN Share NATURAL JOIN CloseFriendGroup NATURAL JOIN Belong WHERE Belong.username = '" + user + "' OR Belong.groupOwner = '" + user + "') as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 UNION (SELECT t.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1) UNION (SELECT v.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo WHERE photoOwner = '" + user + "') as v JOIN Tag JOIN Person ON v.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1);"
     cursor.execute(query)
     tags = cursor.fetchall()
     # query that puts the shows the close friend groups a person belongs to so they can select them while posting
@@ -116,7 +118,7 @@ def home():
     cursor.execute(query,(user))
     liked_posts = cursor.fetchall()
     cursor.close()
-    return render_template('home.html', username=user, posts=data, tagged=tags, groups=closegroups, likes = liked_posts)
+    return render_template('home.html', username=user, posts=data, tagged=tags, groups=closegroups, likes = liked_posts, error=error)
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
@@ -224,6 +226,7 @@ def show_posts():
 
 #Define route for manage_tags page
 @app.route('/tags')
+@app.route('/tags/<error>')
 def tags():
     user = session['username']
     cursor = conn.cursor();
@@ -232,6 +235,44 @@ def tags():
     pending_requests = cursor.fetchall()
     cursor.close()
     return render_template('tags.html', requests=pending_requests)
+
+#Add Tag request
+@app.route('/addTag', methods=["POST"])
+def add_tag():
+    if request.form:
+        user = session['username']
+        photo_id = request.form.get('photo_id')
+        added_user = request.form.get('added_user')
+        error = False
+        cursor = conn.cursor()
+        # Check if added_user exists
+        query = "SELECT username from Person WHERE username = %s"
+        cursor.execute(query,(added_user))
+        #if doesn't exist return
+        if not cursor.fetchone():
+            error = "User does not exist"
+        else:
+            # Check if added user can see the post
+            query = "SELECT Photo.photoID FROM Photo NATURAL JOIN Share NATURAL JOIN CloseFriendGroup NATURAL JOIN Belong WHERE username = %s OR Belong.groupOwner = %s AND Photo.photoID = %s UNION (SELECT photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = %s and acceptedFollow= 1 AND photoID = %s) UNION (SELECT photoID FROM Photo WHERE photoOwner = %s and photoID = %s)"
+            cursor.execute(query,(added_user,added_user,photo_id,added_user, photo_id, added_user,photo_id))
+            #if not visible
+            if not cursor.fetchone():
+                error = added_user + " cannot be tagged"
+            else:
+                #check if tagging themselves
+                if added_user == user:
+                    query = "INSERT INTO Tag VALUES (%s,%s,1)"
+                else:
+                    query = "INSERT INTO Tag VALUES (%s,%s,0)"
+                try:
+                    cursor.execute(query, (added_user, photo_id))
+                except pymysql.err.IntegrityError:
+                    error = added_user + " is already tagged"
+        conn.commit()
+        cursor.close()
+    else:
+        error = "Unknown error, please try again"
+    return redirect(url_for('home', error = error))
 
 #updating Tag requests
 @app.route('/updateTagRequest', methods=["GET","POST"])
@@ -254,6 +295,7 @@ def update_tag_request():
 
 #Define route for manage_follows page
 @app.route('/follows')
+@app.route('/follows/<error>')
 def follows(error = None):
     user = session['username']
     cursor = conn.cursor();
@@ -291,7 +333,7 @@ def request_follow():
         cursor.close()
     else:
         error = "Unknown error, please try again"
-    return follows(error) #loads follow page, probably a better way of doing this but idk
+    return redirect(url_for('follows',error = error)) #loads follow page, probably a better way of doing this but idk
 
 #updating follow requests
 @app.route('/updateFollowRequest', methods=["GET","POST"])
@@ -310,7 +352,7 @@ def update_follow_request():
         error = None
     else:
         error = "Unknown error, please try again"
-    return follows(error) #loads follow page, probably a better way of doing this
+    return redirect(url_for('follows',error = error)) #loads follow page, probably a better way of doing this but idk
 
 #Define route for close friends group page
 @app.route('/groups')

@@ -66,9 +66,9 @@
           <div class="group">
             {{group.groupName}}
             {% if group.groupOwner == username %}
-            <a href="#add" data-toggle="collapse" class="add_link">Add User</a>
+            <a href="#add{{loop.index}}" data-toggle="collapse" class="add_link">Add User</a>
 
-              <div id="add" class="collapse">
+              <div id="add{{loop.index}}" class="add collapse">
 
                 <form action="/addGroupMember" method="POST">
                   <!-- using an invisible checkbox so that the query can get the follower's name -->

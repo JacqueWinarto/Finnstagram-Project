@@ -61,15 +61,17 @@
           <div class="caption">
             <b>{{tag.photoOwner}}</b>  {{tag.caption}}
           </div>
-          <form action="/updateTagRequest" method="POST"  class="request">
-            <!-- using an invisible checkbox so that the query can get the follower's name -->
-            <input type="checkbox"  style="display:none" name="id" value ={{tag.photoID}} checked/>
-            <span style="float:center">
-              Accept Tag?
-             <button type="submit" name="choice" value="True" class="btn btn-success btn-sm"><i class="fas fa-thumbs-up"></i></button>
-             <button type="submit" name="choice"  value="False" class="btn btn-danger btn-sm"><i class="fas fa-thumbs-down"></i></button>
-            </span>
-        </form>
+          <div class="bottom-info">
+            <form action="/updateTagRequest" method="POST">
+              <!-- using an invisible checkbox so that the query can get the follower's name -->
+              <input type="checkbox"  style="display:none" name="id" value ={{tag.photoID}} checked/>
+              <span style="float:center">
+                Accept Tag?
+               <button type="submit" name="choice" value="True" class="btn btn-success btn-sm"><i class="fas fa-thumbs-up"></i></button>
+               <button type="submit" name="choice"  value="False" class="btn btn-danger btn-sm"><i class="fas fa-thumbs-down"></i></button>
+              </span>
+            </form>
+          </div>
         </span>
       {% endfor %}
       {% if not requests %}

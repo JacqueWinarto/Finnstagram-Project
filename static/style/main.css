@@ -135,15 +135,15 @@ input[type=text], textarea, input[type=password]{
 .add_button a{color:white;}
 .add_button a:hover{ text-decoration: none;}
 
-#add{
+.add{
   margin-top:10px;
 }
-#add input[type=text]{
+.add input[type=text]{
   width:auto;
   padding:0 2%;
   margin:0px;
 }
 
-#add button[type=submit]{
+.add button[type=submit]{
   background-color:#5E208F;
 }

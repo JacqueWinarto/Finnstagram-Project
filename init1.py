@@ -93,7 +93,6 @@ def registerAuth():
         cursor.close()
         return render_template('login.html')
 
-
 @app.route('/home')
 @app.route('/home/<error>')
 def home(error = None):
@@ -113,7 +112,7 @@ def home(error = None):
     cursor.execute(query)
     closegroups = cursor.fetchall()
     #query that gets all the photos the person has clicked
-    #html will handle whether they can like a photo or loginAuth
+    #html will handle whether they can like a photo or unlike
     query = "SELECT photoID from liked WHERE username = %s"
     cursor.execute(query,(user))
     liked_posts = cursor.fetchall()
@@ -201,28 +200,6 @@ def unlike():
     # redirect to home, uses posts id in html to go directly to the same post
     return redirect(url_for("home") + "#" + str(post_id))
 
-@app.route('/select_blogger')
-def select_blogger():
-    #check that user is logged in
-    #username = session['username']
-    #should throw exception if username not found
-
-    cursor = conn.cursor();
-    query = 'SELECT DISTINCT photoOwner FROM Photo'
-    cursor.execute(query)
-    data = cursor.fetchall()
-    cursor.close()
-    return render_template('select_blogger.html', user_list=data)
-
-@app.route('/show_posts', methods=["GET", "POST"])
-def show_posts():
-    poster = request.args['poster']
-    cursor = conn.cursor();
-    query = 'SELECT Timestamp, photoID FROM Photo ORDER BY Timestamp DESC'
-    cursor.execute(query, poster)
-    data = cursor.fetchall()
-    cursor.close()
-    return render_template('show_posts.html', poster_name=poster, posts=data)
 
 #Define route for manage_tags page
 @app.route('/tags')
@@ -313,7 +290,7 @@ def request_follow():
         followee = request.form['search'] #user they want to follow
         cursor = conn.cursor()
         # checking if followee exists
-        query = 'SELECT * from Person WHERE username = %s'
+        query = 'SELECT username from Person WHERE username = %s'
         cursor.execute(query,(followee))
         requested_followee = cursor.fetchone()
         error = None
@@ -397,6 +374,56 @@ def add_group_member():
     else:
         error = "Unknown error, please try again"
     return groups(error) #loads follow page, probably a better way of doing this
+
+
+# routes for page where you search for users
+@app.route('/user')
+@app.route('/user/<error>')
+def user(error = None):
+    return render_template('user.html', error = error)
+
+#route for profile page of users that shows the posts for that user
+@app.route('/<selected>')
+def show_posts(selected = None):
+    user = session['username']
+    cursor = conn.cursor();
+    query = "SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo NATURAL JOIN Share NATURAL JOIN CloseFriendGroup NATURAL JOIN Belong WHERE (username = %s OR Belong.groupOwner = %s) AND photoOwner = %s UNION (SELECT photoID, photoOwner, Timestamp, filePath, caption FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = %s and acceptedFollow= 1 and photoOwner = %s) ORDER BY Timestamp DESC ;"
+    cursor.execute(query, (user,user,selected, user, selected))
+    data = cursor.fetchall()
+    print(data)
+    #selecting tags
+    query = 'SELECT q.photoID,Person.username, fname, lname FROM (SELECT Photo.photoID,photo.photoOwner FROM Photo NATURAL JOIN Share NATURAL JOIN CloseFriendGroup NATURAL JOIN Belong WHERE Belong.username = %s OR Belong.groupOwner = %s) as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 and photoOwner = %s UNION (SELECT t.photoID,Person.username, fname, lname FROM (SELECT Photo.photoID,Photo.photoOwner FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = %s and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 and photoOwner = %s)'
+    cursor.execute(query, (user,user,selected,user,selected))
+    tags = cursor.fetchall()
+    query = "SELECT photoID FROM liked WHERE username = %s"
+    cursor.execute(query,(user))
+    liked_posts = cursor.fetchall()
+    return render_template('show_posts.html', username=user, profile = selected, posts=data, tagged=tags, likes= liked_posts)
+
+# route for searching for user, checks if they exist
+@app.route('/search_user', methods=["GET", "POST"])
+def find_user():
+    if request.form:
+        user = session['username']
+        searched_user = request.form['search'] #user they want to follow
+        cursor = conn.cursor()
+        # checking if followee exists
+        query = 'SELECT username from Person WHERE username = %s'
+        cursor.execute(query,(searched_user))
+        found_user = cursor.fetchone()
+        error = None
+        if not found_user:
+            error = "User does not exist"
+        else:
+            conn.commit()
+            cursor.close()
+            return redirect(url_for('show_posts', selected=found_user['username']))
+        conn.commit()
+        cursor.close()
+        return redirect(url_for('user', error = error))
+    else:
+        error = "Unknown error, please try again"
+    return redirect(url_for('user')) #loads follow page, probably a better way of doing this but idk
 
 
 #logging out

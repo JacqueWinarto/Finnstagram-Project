@@ -21,7 +21,7 @@
 
 </head>
 <body>
-  <!-- NAV BAR -->
+	<!-- NAV BAR -->
   <nav class="navbar navbar-expand-sm fixed-top" id="header">
     <div class="container-fluid">
     <!-- Links -->
@@ -52,41 +52,23 @@
 <!-- BEGIN PAGE -->
 <div class="container" style="margin-top:100px;">
   <div class="row">
+		<span class="col-md-3"></span>
     <!-- Follow Users Tab -->
     <span class="col-md-6">
-      <h2>Follow</h2>
+      <h2>Find Posts</h2>
       <div class="form-group has-search">
-        <form action="/requestFollow" method="POST">
+        <form action="/search_user" method="POST">
           <span class="fa fa-search form-control-feedback"></span>
-          <input type="text" name = "search" class="form-control" placeholder="Search">
-          <input type="submit" value = Follow />
+          <input type="text" name = "search" class="form-control" placeholder="Username">
+          <input type="submit" value = 'Find User' />
         </form>
       </div>
-      {% if error == 'False' %}
-        <p> Follow request sent <i class="fas fa-check"></i> </p>
-        {% elif error %}
+      {% if error %}
         <p class="error"><strong>Error:</strong> {{error}}</p>
       {% endif %}
     </span>
-    <!-- MANAGE FOLLOW REQUESTS TAB -->
-    <span class="col-md-6">
-      <h2>Follow Requests</h2>
-      {% for person in requests %}
-          <form action="/updateFollowRequest" method="POST"  class="request">
-            {{person.followerUsername}}
-            <!-- using an invisible checkbox so that the query can get the follower's name -->
-            <input type="checkbox"  style="display:none" name="follower" value ={{person.followerUsername}} checked/>
-            <span style="float:right">
-             <button type="submit" name="choice" value="True" class="btn btn-success btn-sm" title="Accept"><i class="fas fa-thumbs-up"></i></button>
-             <button type="submit" name="choice"  value="False" class="btn btn-danger btn-sm" title="Decline"><i class="fas fa-thumbs-down"></i></button>
-            </span>
-        </form>
-      {% endfor %}
-      {% if not requests %}
-      <p> No follow requests</p>
-      {% endif %}
-    </span>
-  </div>
+
+</div>
 </div>
 
 </body>

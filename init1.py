@@ -102,7 +102,6 @@ def home(error = None):
     query = "SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo NATURAL JOIN Share NATURAL JOIN CloseFriendGroup NATURAL JOIN Belong WHERE username = '" + user + "' OR Belong.groupOwner = '" + user + "' UNION (SELECT photoID, photoOwner, Timestamp, filePath, caption FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow= 1) UNION (SELECT Photo.photoID,photoOwner,Timestamp,filePath,caption FROM Photo WHERE photoOwner = '" + user + "') ORDER BY Timestamp DESC;"
     cursor.execute(query)
     data = cursor.fetchall()
-    print(data)
     #selecting tags
     query = "SELECT q.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo NATURAL JOIN Share NATURAL JOIN CloseFriendGroup NATURAL JOIN Belong WHERE Belong.username = '" + user + "' OR Belong.groupOwner = '" + user + "') as q JOIN Tag JOIN Person ON q.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1 UNION (SELECT t.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername = '" + user + "' and acceptedFollow = 1) as t JOIN Tag JOIN Person ON t.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1) UNION (SELECT v.photoID, fname, lname FROM (SELECT Photo.photoID FROM Photo WHERE photoOwner = '" + user + "') as v JOIN Tag JOIN Person ON v.photoID = Tag.photoID and Tag.username = Person.username WHERE acceptedTag = 1);"
     cursor.execute(query)
@@ -339,7 +338,6 @@ def groups(error = None):
     query = "SELECT DISTINCT groupName,groupOwner FROM BELONG WHERE groupOwner = %s or username = %s"
     cursor.execute(query, (user,user))
     close_groups = cursor.fetchall()
-    print(close_groups)
     conn.commit()
     cursor.close()
     return render_template("groups.html", groups = close_groups, username = user, error = error)

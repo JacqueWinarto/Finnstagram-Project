@@ -31,9 +31,6 @@
 		</div>
 		<ul class="nav navbar-nav">
 			<li class="nav-item">
-				<a href="/user" class="nav-link"> Find User</a>
-			</li>
-			<li class="nav-item">
 				<a href="/groups" class="nav-link">Groups</a>
 			</li>
 			<li class="nav-item">
@@ -108,16 +105,16 @@
 						<form action="/unlike" method="POST" class="like">
 							<button type="submit" name="like_btn" value = "{{line.photoID}},{{outer_loop.index}}"
 							<i class="fas fa-heart clickable" data-toggle="tooltip" title="Unlike"></i>
-						</button>
-					</form>
+							</button>
+						</form>
 					{% endfor %}
 					<!-- POST NOT LIKED, SHOW LIKE FORM -->
 					{% if ns.found == false  %}
 					<form action="/like" method="POST" class="like">
 						<button type="submit" name="like_btn" value = "{{line.photoID}},{{outer_loop.index}}"
 						<i class="far fa-heart clickable" data-toggle="tooltip" title="Like"></i>
-					</button>
-				</form>
+						</button>
+					</form>
 				{% endif %}
 				<!-- END LIKES STUFF -->
 				<!-- START TAGS STUFF-->
@@ -145,10 +142,39 @@
 								Add Tag
 							</button>
 						</div>
-					</div>
+						</div>
 					</form>
 				</div>
-			</div>
+				<!-- show everyone who has liked the photo -->
+				<br>
+				{% if liked %}
+				<span class="liked">
+					{% for like in liked if like.photoID == line.photoID %}
+					<strong style="color:#330033;">{{like.username}}</strong>
+					{% if loop.nextitem is defined %},{% endif %}
+					{% endfor %}
+					<h7>liked this</h7>
+				</span>
+				{% endif %}
+				<br><h7 style="color:#606060;">Comments</h7><br>
+				<!-- START COMMENT STUFF -->
+					<!-- see all comments per PhotoID -->
+					{% if comments %}
+					<span class = "comments">
+						{% for comment in comments if comment.photoID == line.photoID %}
+						<strong style="color:#330033;">{{comment.time}} {{comment.username}} </strong> {{comment.commentText}}
+						<!-- go through all the comments -->
+						{% if loop.nextitem is defined %}<p>{% endif %}
+						{% endfor %}
+					</span>
+					{% endif %}
+					<!-- add a comment -->
+					<form action="/comment" method="POST">
+						<textarea name = "comment" placeholder="comment" required/></textarea>
+						<input type="checkbox"  style="display:none" name="photo_id" value ={{line.photoID}} checked/>
+						<input type="submit" value = "Publish Comment"/>
+					</form>
+					</div>
 			<!-- END BOTTOM INFO -->
 		</span>
 		<!-- END POST -->

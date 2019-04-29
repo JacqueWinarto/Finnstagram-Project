@@ -77,7 +77,7 @@ CREATE TABLE Comment(
     photoID int,
     commentText VARCHAR(1024),
     timestamp Timestamp,
-    PRIMARY KEY (photoID, username),
+    PRIMARY KEY (commentText, photoID, username),
     FOREIGN KEY (photoID) REFERENCES Photo(photoID),
     FOREIGN KEY (username) REFERENCES Person(username)
 );

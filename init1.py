@@ -115,6 +115,17 @@ def home(error = None):
     query = "SELECT photoID from liked WHERE username = %s"
     cursor.execute(query,(user))
     liked_posts = cursor.fetchall()
+     #query that gets all the comments
+    query = "SELECT r.photoID, time, Comment.username, commentText FROM (SELECT Photo.photoID FROM Photo NATURAL JOIN Share NATURAL JOIN CloseFriendGroup NATURAL JOIN Belong WHERE Belong.username = '" + user + "' OR Belong.groupOwner = '" + user + "') AS r JOIN Comment ON r.photoID = Comment.photoID UNION (SELECT s.photoID, time, Comment.username, commentText FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername ='" + user + "' and acceptedFollow = 1) as s JOIN Comment ON s.photoID = Comment.photoID) UNION (SELECT w.photoID, time, Comment.username, commentText FROM (SELECT photoID FROM Photo WHERE photoOwner = '" + user + "') as w JOIN Comment ON w.photoID = Comment.photoID);"
+    cursor.execute(query)
+    comments_posts = cursor.fetchall()
+#    query that gets all likes
+    query = "SELECT r.photoID, username FROM (SELECT Photo.photoID FROM Photo NATURAL JOIN Share NATURAL JOIN CloseFriendGroup NATURAL JOIN Belong WHERE Belong.username = '" + user + "' OR Belong.groupOwner = '" + user + "') AS r JOIN Liked ON r.photoID = Liked.photoID UNION (SELECT s.photoID, username FROM (SELECT Photo.photoID FROM Photo JOIN Follow ON photoOwner = followeeUsername WHERE followerUsername ='" + user + "' and acceptedFollow = 1) as s JOIN Liked ON s.photoID = Liked.photoID) UNION (SELECT w.photoID, username FROM (SELECT photoID FROM Photo WHERE photoOwner = '" + user + "') as w JOIN Liked ON w.photoID = Liked.photoID);"
+    cursor.execute(query)
+    likedPost = cursor.fetchall()
+    cursor.close()
+    return render_template('home.html', username=user, posts=data, tagged=tags, groups=closegroups, likes = liked_posts, comments = comments_posts, liked = likedPost, error=error)
+
     cursor.close()
     return render_template('home.html', username=user, posts=data, tagged=tags, groups=closegroups, likes = liked_posts, error=error)
 
@@ -155,6 +166,21 @@ def post():
         i += 1
     conn.commit()
     cursor.close()
+    return redirect(url_for('home'))
+
+@app.route('/comment', methods=["POST"])
+def comment():
+    if request.form:
+        user = session['username']
+        cursor = conn.cursor()
+        photo_id = request.form.get('photo_id')
+        text = request.form.get('comment')
+        query = 'INSERT INTO Comment(username, photoID, commentText) VALUES (%s, %s, %s)'
+        cursor.execute(query, (user, photo_id, text))
+        conn.commit()
+        cursor.close()
+    else:
+        error = "Unknown error, please try again"
     return redirect(url_for('home'))
 
 @app.route('/like', methods=["GET", "POST"])
